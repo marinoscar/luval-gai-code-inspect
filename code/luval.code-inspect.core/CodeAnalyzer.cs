@@ -33,7 +33,7 @@ namespace luval.code_inspect.core
             if (string.IsNullOrWhiteSpace(codeContent)) throw new ArgumentNullException(nameof(codeContent));
             if (string.IsNullOrWhiteSpace(promptConfig)) throw new ArgumentNullException(nameof(promptConfig));
 
-            
+
             _codeContent = GitCodeExtractor.GetCodeAsync(codeContent).Result;
             _apiKey = apiKey;
             _config = JObject.Parse(promptConfig);
@@ -71,9 +71,11 @@ namespace luval.code_inspect.core
             request.WriteLine("{0}", prompt);
 
             var tokens = (int)(_context.ToString().Length / 2.9);
+            if (tokens > 4097) throw new ArgumentOutOfRangeException(nameof(prompt), "The prompt exceeds the max number of tokens allowed");
+
             var maxTokens = (int)(4097 - tokens);
             // for example
-            await foreach (var token in api.Completions.StreamCompletionEnumerableAsync(request.ToString(), max_tokens: 4097))
+            await foreach (var token in api.Completions.StreamCompletionEnumerableAsync(request.ToString(), max_tokens: maxTokens))
             {
                 response.Write(token);
                 OnStreamEvent(token.ToString());

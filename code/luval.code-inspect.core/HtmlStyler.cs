@@ -33,7 +33,7 @@ namespace luval.code_inspect.core
             body.AppendChild(sqlStatements);
             body.AppendChild(HtmlNode.CreateNode("<h2>Code Analyzed</h2>"));
             body.AppendChild(CreateCodeTab(codeInfo));
-            var fileName = string.Format("{0}-{1}.html", codeInfo.LanguageName, DateTime.Now.ToString("YYYY-MM-DD-HH-mm-ss")).ToLower();
+            var fileName = string.Format("{0}-{1}.html", codeInfo.LanguageName, DateTime.Now.ToString("yyyy-MM-dd-hhmmssffff")).ToLower();
             html.Save(fileName);
             return fileName;
         }
