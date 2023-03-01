@@ -123,40 +123,4 @@ void * QxDataMember_QObject::getDataVoidPtr(void * pOwner)
    return NULL;
 }
 
-} // namespace qx
-
-#ifdef _QX_ENABLE_BOOST_SERIALIZATION
-
-#if _QX_SERIALIZE_POLYMORPHIC
-   QX_DATA_MEMBER_QOBJECT_IMPL_VIRTUAL_ARCHIVE_CPP(boost::archive::polymorphic_iarchive, boost::archive::polymorphic_oarchive)
-#endif // _QX_SERIALIZE_POLYMORPHIC
-
-#if _QX_SERIALIZE_BINARY
-   QX_DATA_MEMBER_QOBJECT_IMPL_VIRTUAL_ARCHIVE_CPP(boost::archive::binary_iarchive, boost::archive::binary_oarchive)
-#endif // _QX_SERIALIZE_BINARY
-
-#if _QX_SERIALIZE_TEXT
-   QX_DATA_MEMBER_QOBJECT_IMPL_VIRTUAL_ARCHIVE_CPP(boost::archive::text_iarchive, boost::archive::text_oarchive)
-#endif // _QX_SERIALIZE_TEXT
-
-#if _QX_SERIALIZE_XML
-   QX_DATA_MEMBER_QOBJECT_IMPL_VIRTUAL_ARCHIVE_CPP(boost::archive::xml_iarchive, boost::archive::xml_oarchive)
-#endif // _QX_SERIALIZE_XML
-
-#if _QX_SERIALIZE_PORTABLE_BINARY
-   QX_DATA_MEMBER_QOBJECT_IMPL_VIRTUAL_ARCHIVE_CPP(eos::portable_iarchive, eos::portable_oarchive)
-#endif // _QX_SERIALIZE_PORTABLE_BINARY
-
-#if _QX_SERIALIZE_WIDE_BINARY
-   QX_DATA_MEMBER_QOBJECT_IMPL_VIRTUAL_ARCHIVE_CPP(boost::archive::binary_wiarchive, boost::archive::binary_woarchive)
-#endif // _QX_SERIALIZE_WIDE_BINARY
-
-#if _QX_SERIALIZE_WIDE_TEXT
-   QX_DATA_MEMBER_QOBJECT_IMPL_VIRTUAL_ARCHIVE_CPP(boost::archive::text_wiarchive, boost::archive::text_woarchive)
-#endif // _QX_SERIALIZE_WIDE_TEXT
-
-#if _QX_SERIALIZE_WIDE_XML
-   QX_DATA_MEMBER_QOBJECT_IMPL_VIRTUAL_ARCHIVE_CPP(boost::archive::xml_wiarchive, boost::archive::xml_woarchive)
-#endif // _QX_SERIALIZE_WIDE_XML
-
-#endif // _QX_ENABLE_BOOST_SERIALIZATION
+}

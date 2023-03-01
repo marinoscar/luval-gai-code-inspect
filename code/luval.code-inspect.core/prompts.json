@@ -7,3 +7,10 @@
   "methodDetails": "provide the following 1) The methods in the code (key: methodName) and 2) The description for the method (key: methodDescription) provide the values as an array in JSON format"
 
 }
+
+/*
+  Sample files
+  1. CPP: https://raw.githubusercontent.com/marinoscar/luval-gai-code-inspect/main/samples/QxDataMember_QObject.cpp
+  2. Cobol: https://raw.githubusercontent.com/marinoscar/luval-gai-code-inspect/main/samples/sql-lite.cbl
+  3. Ruby: https://raw.githubusercontent.com/marinoscar/luval-gai-code-inspect/main/samples/ActiverRecord-Query.rb
+*/

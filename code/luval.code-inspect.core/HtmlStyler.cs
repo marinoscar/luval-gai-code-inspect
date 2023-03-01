@@ -74,6 +74,7 @@ namespace luval.code_inspect.core
 
         private static HtmlNode CreateCodeTab(CodeInfo codeInfo)
         {
+            var codeClass = codeInfo.LanguageName.ToLower().Equals("cobol") ? "cobol" : "cpp";
             var html = @"
 <nav>
   <div class=""nav nav-tabs"" id=""nav-tab"" role=""tablist"">
