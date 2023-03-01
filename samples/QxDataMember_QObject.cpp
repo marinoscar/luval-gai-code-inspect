@@ -1,126 +1,104 @@
-#include <QxPrecompiled.h>
 
-#include <QxDataMember/QxDataMember_QObject.h>
+Node* mergeTwoLLs(Node *head1, Node *head2) {
 
-#include <QxRegister/QxClassX.h>
-
-#include <QxConvert/QxConvert.h>
-#include <QxConvert/QxConvert_Impl.h>
-
-#include <QxMemLeak/mem_leak.h>
-
-#define QX_DATA_MEMBER_QOBJECT_IMPL_VIRTUAL_ARCHIVE_CPP(ArchiveInput, ArchiveOutput) \
-namespace qx { \
-void QxDataMember_QObject::toArchive(const void * pOwner, ArchiveOutput & ar) const \
-{ QVariant v = m_metaProperty.read(static_cast<const QObject *>(pOwner)); ar << boost::serialization::make_nvp(getNamePtr(), v); } \
-void QxDataMember_QObject::fromArchive(void * pOwner, ArchiveInput & ar) \
-{ QVariant v; ar >> boost::serialization::make_nvp(getNamePtr(), v); m_metaProperty.write(static_cast<QObject *>(pOwner), v); } }
-
-namespace qx {
-
-QxDataMember_QObject::QxDataMember_QObject(const QMetaObject * pMetaObject, const QString & sKey) : IxDataMember(sKey, 0, true, true, NULL), m_metaObject(pMetaObject)
-{
-   setAccessDataPointer(false);
-   if (! m_metaObject) { qAssert(false); return; }
-   int index = m_metaObject->indexOfProperty(qPrintable(sKey));
-   if (index == -1) { qAssert(false); return; }
-   m_metaProperty = m_metaObject->property(index);
-   setSqlType(QxClassX::getSqlTypeByClassName(m_metaProperty.typeName()));
+    Node* head = NULL;
+    Node* tail = NULL;
+    
+    
+    if(head1->data<=head2->data){
+        head=head1;
+        tail=head1;
+        head1=head1->next;
+    }
+    else{
+        head=head2;
+        tail=head2;
+        head2=head2->next;
+    }
+    
+    while(head1!=NULL && head2!= NULL){
+        if(head1->data<=head2->data){
+            tail->next = head1;
+            tail=tail->next;
+            head1=head1->next;
+        }
+        else{
+        tail->next = head2;
+        tail=tail->next;
+        head2=head2->next;
+        }
+    }
+    
+    if(head1==NULL){
+        tail->next=head2;
+    }
+    if(head2==NULL){
+        tail->next=head1;
+    }
+    return head;
 }
 
-bool QxDataMember_QObject::isEqual(const void * pOwner1, const void * pOwner2) const
+#include <iostream>
+
+class Node
 {
-   if ((pOwner1 == NULL) || (pOwner2 == NULL)) { return false; }
-   if (pOwner1 == pOwner2) { return true; }
-   QVariant var1 = m_metaProperty.read(static_cast<const QObject *>(pOwner1));
-   QVariant var2 = m_metaProperty.read(static_cast<const QObject *>(pOwner2));
-   return (var1 == var2);
+public:
+	int data;
+	Node *next;
+	Node(int data)
+	{
+		this->data = data;
+		this->next = NULL;
+	}
+};
+
+using namespace std;
+#include "solution.h"
+
+Node *takeinput()
+{
+	int data;
+	cin >> data;
+	Node *head = NULL, *tail = NULL;
+	while (data != -1)
+	{
+		Node *newNode = new Node(data);
+		if (head == NULL)
+		{
+			head = newNode;
+			tail = newNode;
+		}
+		else
+		{
+			tail->next = newNode;
+			tail = newNode;
+		}
+		cin >> data;
+	}
+	return head;
 }
 
-QVariant QxDataMember_QObject::toVariant(const void * pOwner, const QString & sFormat, int iIndexName /* = -1 */, qx::cvt::context::ctx_type ctx /* = qx::cvt::context::e_no_context */) const
+void print(Node *head)
 {
-   Q_UNUSED(sFormat); Q_UNUSED(iIndexName); Q_UNUSED(ctx);
-   return m_metaProperty.read(static_cast<const QObject *>(pOwner));
+	Node *temp = head;
+	while (temp != NULL)
+	{
+		cout << temp->data << " ";
+		temp = temp->next;
+	}
+	cout << endl;
 }
 
-qx_bool QxDataMember_QObject::fromVariant(void * pOwner, const QVariant & v, const QString & sFormat, int iIndexName /* = -1 */, qx::cvt::context::ctx_type ctx /* = qx::cvt::context::e_no_context */)
+int main()
 {
-   Q_UNUSED(sFormat); Q_UNUSED(iIndexName); Q_UNUSED(ctx);
-   return m_metaProperty.write(static_cast<QObject *>(pOwner), v);
-}
-
-QString QxDataMember_QObject::getType() const
-{
-   return QString(m_metaProperty.typeName());
-}
-
-#ifndef _QX_NO_JSON
-
-QJsonValue QxDataMember_QObject::toJson(const void * pOwner, const QString & sFormat) const
-{
-   Q_UNUSED(sFormat);
-   QVariant val = m_metaProperty.read(static_cast<const QObject *>(pOwner));
-
-#ifdef _QX_ENABLE_MONGODB
-   if (getIsPrimaryKey() && sFormat.startsWith("mongodb"))
-   {
-      QString tmp = val.toString();
-      if (tmp.startsWith("qx_oid:")) { QJsonObject obj; obj.insert("$oid", QJsonValue(tmp.right(tmp.size() - 7))); return QJsonValue(obj); }
-   }
-#endif // _QX_ENABLE_MONGODB
-
-   return QJsonValue::fromVariant(val);
-}
-
-qx_bool QxDataMember_QObject::fromJson(void * pOwner, const QJsonValue & j, const QString & sFormat)
-{
-   Q_UNUSED(sFormat);
-   QVariant val = j.toVariant();
-
-#ifdef _QX_ENABLE_MONGODB
-   if (getIsPrimaryKey() && val.toString().isEmpty() && j.isObject() && sFormat.startsWith("mongodb"))
-   {
-      QJsonObject obj = j.toObject(); QString tmp;
-      if (obj.contains("$oid")) { tmp = obj.value("$oid").toString(); }
-      if (! tmp.isEmpty()) { tmp = ("qx_oid:" + tmp); val = tmp; }
-   }
-#endif // _QX_ENABLE_MONGODB
-
-   return m_metaProperty.write(static_cast<QObject *>(pOwner), val);
-}
-
-#endif // _QX_NO_JSON
-
-qx::any QxDataMember_QObject::getDataPtr(const void * pOwner) const
-{
-   Q_UNUSED(pOwner);
-   qDebug("[QxOrm] qx::QxDataMember_QObject::getDataPtr() : '%s'", "cannot access to the data-member pointer with Qt introspection engine");
-   qAssert(false);
-   return qx::any();
-}
-
-qx::any QxDataMember_QObject::getDataPtr(void * pOwner)
-{
-   Q_UNUSED(pOwner);
-   qDebug("[QxOrm] qx::QxDataMember_QObject::getDataPtr() : '%s'", "cannot access to the data-member pointer with Qt introspection engine");
-   qAssert(false);
-   return qx::any();
-}
-
-void * QxDataMember_QObject::getDataVoidPtr(const void * pOwner) const
-{
-   Q_UNUSED(pOwner);
-   qDebug("[QxOrm] qx::QxDataMember_QObject::getDataVoidPtr() : '%s'", "cannot access to the data-member pointer with Qt introspection engine");
-   qAssert(false);
-   return NULL;
-}
-
-void * QxDataMember_QObject::getDataVoidPtr(void * pOwner)
-{
-   Q_UNUSED(pOwner);
-   qDebug("[QxOrm] qx::QxDataMember_QObject::getDataVoidPtr() : '%s'", "cannot access to the data-member pointer with Qt introspection engine");
-   qAssert(false);
-   return NULL;
-}
-
+	int t;
+	cin >> t;
+	while (t--)
+	{
+		Node *head1 = takeinput();
+		Node *head2 = takeinput();
+		Node *head3 = mergeTwoSortedLinkedLists(head1, head2);
+		print(head3);
+	}
+	return 0;
 }
