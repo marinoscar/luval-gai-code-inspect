@@ -17,13 +17,41 @@ namespace luval.code_inspect.core
             var body = html.DocumentNode.SelectSingleNode("//div");
             body.AppendChild(HtmlNode.CreateNode("<h2>Code Description</h2>"));
             body.AppendChild(HtmlNode.CreateNode(string.Format("<p>{0}</p>", codeInfo.CodeDescription)));
+
+            if (codeInfo.Procedures.Any())
+                PrintProcedures(codeInfo, body);
+            if (codeInfo.SqlStatements.Any())
+                PrintSqlStatements(codeInfo, body);
+            if (codeInfo.Methods.Any())
+                PrintMethods(codeInfo, body);
+
+            body.AppendChild(HtmlNode.CreateNode("<h2>Code Analyzed</h2>"));
+            body.AppendChild(CreateCodeTab(codeInfo));
+            var fileName = string.Format("{0}-{1}.html", codeInfo.LanguageName, DateTime.Now.ToString("yyyy-MM-dd-hhmmssffff")).ToLower();
+            html.Save(fileName);
+            return fileName;
+        }
+
+        private static void PrintMethods(CodeInfo codeInfo, HtmlNode body)
+        {
             body.AppendChild(HtmlNode.CreateNode("<h2>Methods</h2>"));
-            var methods = HtmlNode.CreateNode("<ul></ul>");
-            foreach (var procedure in codeInfo.Procedures)
+            var table = HtmlNode.CreateNode("<table class=\"table-striped\"></table>");
+            var tableBody = new StringWriter();
+            tableBody.WriteLine(@"<thead><tr><th scope=""col"">Method</th><th scope=""col"">Description</th></tr></thead>");
+            tableBody.WriteLine("<tbody>");
+            foreach (var method in codeInfo.Methods)
             {
-                methods.AppendChild(HtmlNode.CreateNode(string.Format("<li>{0}</li>", procedure)));
+                tableBody.WriteLine("<tr><th scope=\"row\">{0}</th><td>{1}</td></tr>",
+                    HttpUtility.HtmlEncode(method.Name),
+                    HttpUtility.HtmlEncode(method.Description));
             }
-            body.AppendChild(methods);
+            tableBody.WriteLine("</tbody>");
+            table.InnerHtml = tableBody.ToString();
+            body.AppendChild(table);
+        }
+
+        private static void PrintSqlStatements(CodeInfo codeInfo, HtmlNode body)
+        {
             body.AppendChild(HtmlNode.CreateNode("<h2>Sql Statements</h2>"));
             var sqlStatements = HtmlNode.CreateNode("<ul></ul>");
             foreach (var statement in codeInfo.SqlStatements)
@@ -31,11 +59,17 @@ namespace luval.code_inspect.core
                 sqlStatements.AppendChild(HtmlNode.CreateNode(string.Format("<li><pre><code class=\"lang-sql\">{0}</code></pre></li>", statement)));
             }
             body.AppendChild(sqlStatements);
-            body.AppendChild(HtmlNode.CreateNode("<h2>Code Analyzed</h2>"));
-            body.AppendChild(CreateCodeTab(codeInfo));
-            var fileName = string.Format("{0}-{1}.html", codeInfo.LanguageName, DateTime.Now.ToString("yyyy-MM-dd-hhmmssffff")).ToLower();
-            html.Save(fileName);
-            return fileName;
+        }
+
+        private static void PrintProcedures(CodeInfo codeInfo, HtmlNode body)
+        {
+            body.AppendChild(HtmlNode.CreateNode("<h2>Methods</h2>"));
+            var methods = HtmlNode.CreateNode("<ul></ul>");
+            foreach (var procedure in codeInfo.Procedures)
+            {
+                methods.AppendChild(HtmlNode.CreateNode(string.Format("<li>{0}</li>", procedure)));
+            }
+            body.AppendChild(methods);
         }
 
         private static HtmlNode CreateCodeTab(CodeInfo codeInfo)

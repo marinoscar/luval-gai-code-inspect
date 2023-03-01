@@ -52,8 +52,11 @@ namespace luval.code_inspect.core
             response.LanguageName = info["languageName"].Value<string>();
             response.LanguageType = info["languageType"].Value<string>();
             response.CodeDescription = await GetCodeDescription();
-            response.Procedures = await GetSubProcedures();
-            response.SqlStatements = await GetSqlStatements();
+            if(response.LanguageType != null && response.LanguageType.ToLower().Contains("proce"))
+                response.Procedures = await GetSubProcedures();
+            else
+                response.Methods = await GetMethods();
+            //response.SqlStatements = await GetSqlStatements();
             response.CSharpCode = await GetCSharpCode();
             response.OriginalCode = _codeContent;
 
@@ -107,6 +110,25 @@ namespace luval.code_inspect.core
         {
             var p = GetPrompt("procSubProcesses");
             return await GetCSVData(p);
+        }
+
+        private async Task<List<ProcedureInfo>> GetMethods()
+        {
+            var p = GetPrompt("methodDetails");
+            var textResult = await RunPrompt(p);
+            var values = JsonConvert.DeserializeObject<JArray>(textResult);
+            if (values == null) throw new Exception("Unable to parse values");
+            var result = new List<ProcedureInfo>();
+            foreach (JToken item in values)
+            {
+                if(item == null) throw new Exception("Unable to extract token");
+                result.Add(new ProcedureInfo()
+                {
+                    Name = item.First.Value<string>(),
+                    Description = item.Last.Value<string>()
+                });
+            }
+            return result;
         }
 
         private async Task<string?> GetCodeDescription()

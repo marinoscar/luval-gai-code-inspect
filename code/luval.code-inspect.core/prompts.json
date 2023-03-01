@@ -3,6 +3,7 @@
   "codeDescription": "provide a brief description of what the code is doing",
   "procSubProcesses": "list only the name of the sub-procedures in csv format",
   "csharpCode": "write the code in C#",
-  "sqlStatements": "list all of the sql statements in in csv format, if there is none then just respond with the word NONE"
+  "sqlStatements": "list all of the sql statements in in csv format, if there is none then just respond with the word NONE",
+  "methodDetails": "provide the following 1) The methods in the code (key: methodName) and 2) The description for the method (key: methodDescription) provide the values as an array in JSON format"
 
 }
