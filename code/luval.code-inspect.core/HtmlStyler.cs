@@ -35,7 +35,7 @@ namespace luval.code_inspect.core
         private static void PrintMethods(CodeInfo codeInfo, HtmlNode body)
         {
             body.AppendChild(HtmlNode.CreateNode("<h2>Methods</h2>"));
-            var table = HtmlNode.CreateNode("<table class=\"table-striped\"></table>");
+            var table = HtmlNode.CreateNode("<table class=\"table table-striped\"></table>");
             var tableBody = new StringWriter();
             tableBody.WriteLine(@"<thead><tr><th scope=""col"">Method</th><th scope=""col"">Description</th></tr></thead>");
             tableBody.WriteLine("<tbody>");
@@ -89,8 +89,8 @@ namespace luval.code_inspect.core
 ";
             var node = HtmlNode.CreateNode("<div></div>");
             node.InnerHtml = string.Format(html, codeInfo.LanguageName,
-                codeInfo.LanguageName, HttpUtility.HtmlEncode(codeInfo.OriginalCode), "cs",
-                HttpUtility.HtmlEncode(codeInfo.CSharpCode));
+                codeInfo.LanguageName, HttpUtility.HtmlEncode(codeInfo.OriginalCode), "none",
+                HttpUtility.HtmlEncode(codeInfo.PseudoCode));
             return node;
         }
     }

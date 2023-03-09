@@ -53,19 +53,25 @@ namespace luval.code_inspect.app
 
             if (string.IsNullOrWhiteSpace(codeContent)) throw new ArgumentNullException("code", "File url was not provided");
 
+
+            //var transcript = new Voice2Text(key);
+            //var file = new FileInfo(@"C:\Users\CH489GT\OneDrive - EY\Documents\Sound recordings\jimmy.m4a");
+            //var response = transcript.GetTextAsync(file).Result;
+            //WriteLine(response);
+
             var codeAnalyzer = new CodeAnalyzer(key, codeContent, File.ReadAllText("prompts.json"));
             codeAnalyzer.StreamEvent += CodeAnalyzer_StreamEvent;
             var item = codeAnalyzer.GetCodeDetails().Result;
             
             //File.WriteAllText("cobol.json", JsonConvert.SerializeObject(item, Formatting.Indented));
 
-            var file = HtmlStyler.Style(item);
-            Process.Start(file);
+            var htmlFile = HtmlStyler.Style(item);
         }
 
         private static void CodeAnalyzer_StreamEvent(object? sender, StreamEventArgs e)
         {
-            Write(ConsoleColor.Green, e.Message);
+            var color = e.IsPrompt? ConsoleColor.Yellow : ConsoleColor.Green;
+            Write(color, e.Message);
         }
 
         /// <summary>

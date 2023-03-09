@@ -1,11 +1,11 @@
 {
-  "languageInfo": "please provide the programming language name as a JSON with key languageName for the language name and key languageType to indicate if it is procedural, functional or object oriented",
+  "languageInfo": "please provide the programming language name as a JSON and only the JSON, nothing else with key languageName for the language name and key languageType to indicate if it is procedural, functional or object oriented",
   "codeDescription": "provide a brief description of what the code is doing",
   "procSubProcesses": "list only the name of the sub-procedures in csv format",
-  "csharpCode": "write the code in C#",
+  "csharpCode": "write the code in C# with comments",
   "sqlStatements": "list all of the sql statements in in csv format, if there is none then just respond with the word NONE",
-  "methodDetails": "provide the following 1) The methods in the code (key: methodName) and 2) The description for the method (key: methodDescription) provide the values as an array in JSON format"
-
+  "methodDetails": "for each method in the code, provide the name and a short description of what the method does",
+  "pseudoCode": "write the pseudo-code"
 }
 
 /*

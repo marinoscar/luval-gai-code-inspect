@@ -23,5 +23,6 @@ namespace luval.code_inspect.core
         public List<string?> SqlStatements { get; set; }
         public string? CSharpCode { get; set; }
         public string? OriginalCode { get; set; }
+        public string? PseudoCode { get; set; }
     }
 }

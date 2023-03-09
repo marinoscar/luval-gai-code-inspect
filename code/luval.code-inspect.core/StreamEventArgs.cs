@@ -19,5 +19,6 @@ namespace luval.code_inspect.core
             Message = message;
         }
         public string? Message { get; set; }
+        public bool IsPrompt { get; set; }
     }
 }

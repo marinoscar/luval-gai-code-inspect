@@ -20,10 +20,10 @@ namespace luval.code_inspect.core
 
         public event EventHandler<StreamEventArgs> StreamEvent;
 
-        protected virtual void OnStreamEvent(string? message)
+        protected virtual void OnStreamEvent(string? message, bool isPrompt = false)
         {
             EventHandler<StreamEventArgs> eventHandler = StreamEvent;
-            if (eventHandler != null) eventHandler(this, new StreamEventArgs(message));
+            if (eventHandler != null) eventHandler(this, new StreamEventArgs() { IsPrompt = isPrompt, Message = message });
 
         }
 
@@ -52,13 +52,14 @@ namespace luval.code_inspect.core
             response.LanguageName = info["languageName"].Value<string>();
             response.LanguageType = info["languageType"].Value<string>();
             response.CodeDescription = await GetCodeDescription();
-            if(response.LanguageType != null && response.LanguageType.ToLower().Contains("proce"))
+            if(response.LanguageType != null && !response.LanguageType.ToLower().Contains("object"))
                 response.Procedures = await GetSubProcedures();
             else
                 response.Methods = await GetMethods();
             //response.SqlStatements = await GetSqlStatements();
             response.CSharpCode = await GetCSharpCode();
             response.OriginalCode = _codeContent;
+            response.PseudoCode = await GetPseudoCode();
 
             return response;
         }
@@ -66,6 +67,10 @@ namespace luval.code_inspect.core
         public async Task<string> RunPrompt(string prompt)
         {
             if (string.IsNullOrWhiteSpace(prompt)) throw new ArgumentNullException(nameof(prompt));
+
+            OnStreamEvent(Environment.NewLine);
+            OnStreamEvent(prompt, true);
+            OnStreamEvent(Environment.NewLine);
 
             var request = new StringWriter();
             var response = new StringWriter();
@@ -76,9 +81,9 @@ namespace luval.code_inspect.core
             var tokens = (int)(_context.ToString().Length / 2.9);
             if (tokens > 4097) throw new ArgumentOutOfRangeException(nameof(prompt), "The prompt exceeds the max number of tokens allowed");
 
-            var maxTokens = (int)(4097 - tokens);
+            var maxTokens = (int)((4097 - tokens)*0.9);
             // for example
-            await foreach (var token in api.Completions.StreamCompletionEnumerableAsync(request.ToString(), max_tokens: maxTokens))
+            await foreach (var token in api.Completions.StreamCompletionEnumerableAsync(request.ToString(), max_tokens: maxTokens, temperature: 0))
             {
                 response.Write(token);
                 OnStreamEvent(token.ToString());
@@ -90,6 +95,12 @@ namespace luval.code_inspect.core
         private async Task<string?> GetCSharpCode()
         {
             var p = GetPrompt("csharpCode");
+            return await RunPrompt(p);
+        }
+
+        private async Task<string?> GetPseudoCode()
+        {
+            var p = GetPrompt("pseudoCode");
             return await RunPrompt(p);
         }
 
@@ -114,19 +125,18 @@ namespace luval.code_inspect.core
 
         private async Task<List<ProcedureInfo>> GetMethods()
         {
+            var result = new List<ProcedureInfo>();
             var p = GetPrompt("methodDetails");
             var textResult = await RunPrompt(p);
-            var values = JsonConvert.DeserializeObject<JArray>(textResult);
-            if (values == null) throw new Exception("Unable to parse values");
-            var result = new List<ProcedureInfo>();
-            foreach (JToken item in values)
-            {
-                if(item == null) throw new Exception("Unable to extract token");
-                result.Add(new ProcedureInfo()
-                {
-                    Name = item.First.Value<string>(),
-                    Description = item.Last.Value<string>()
-                });
+            var lines = textResult.Split(new[] { '\n' });
+            var splitChar = textResult.Contains("-") ? "-" : ":";
+            foreach (var line in lines) {
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                var item = line.Split(splitChar);
+                var info = new ProcedureInfo();
+                info.Name = item[0].Trim();
+                if(item.Length > 1) info.Description = item[1].Trim();
+                result.Add(info);
             }
             return result;
         }
